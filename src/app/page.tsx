@@ -17,14 +17,14 @@ const agents = [
   {
     id: "okr",
     name: "OKR Agent",
-    description: "帮你生成 Objective / KR / 优化建议",
-    placeholder: "例如：我想提升用户留存，但还不知道 OKR 怎么写...",
+    description: "把模糊目标改写成 Objective、KR、风险点和优化建议",
+    placeholder: "例如：我想提升阿里味助手的使用体验，让朋友更容易完成周报生成。",
   },
   {
     id: "review",
     name: "复盘 Agent",
-    description: "按 STAR / PDCA 生成项目复盘",
-    placeholder: "例如：这次活动上线比较赶，结果转化一般，协同中有些问题...",
+    description: "把项目过程整理成背景、目标、行动、结果和下次优化",
+    placeholder: "例如：我做了一个阿里味助手 MVP，过程中遇到 GitHub、部署和页面优化问题，最后成功上线。",
   },
   {
     id: "translate",
@@ -268,7 +268,6 @@ function cleanGeneratedText(text: string) {
 export default function Home() {
   const [selectedAgent, setSelectedAgent] = useState(agents[0]);
   const [input, setInput] = useState("");
-  const [flavorLevel, setFlavorLevel] = useState("中");
   const [output, setOutput] = useState("");
   const [weeklyForm, setWeeklyForm] =
     useState<WeeklyFormState>(emptyWeeklyForm);
@@ -308,7 +307,6 @@ export default function Home() {
           weeklyForm?: WeeklyFormState;
           weeklyTasks?: WeeklyTask[];
           input?: string;
-          flavorLevel?: string;
         };
 
         if (draft.weeklyForm) {
@@ -321,10 +319,6 @@ export default function Home() {
 
         if (typeof draft.input === "string") {
           setInput(draft.input);
-        }
-
-        if (draft.flavorLevel) {
-          setFlavorLevel(draft.flavorLevel);
         }
 
         setDraftStatus("已恢复上次草稿");
@@ -349,7 +343,6 @@ export default function Home() {
             weeklyForm,
             weeklyTasks,
             input,
-            flavorLevel,
           })
         );
 
@@ -360,7 +353,7 @@ export default function Home() {
     }, 500);
 
     return () => window.clearTimeout(timer);
-  }, [hasLoadedDraft, weeklyForm, weeklyTasks, input, flavorLevel]);
+  }, [hasLoadedDraft, weeklyForm, weeklyTasks, input]);
 
   function handleWeeklyFormChange(field: keyof WeeklyFormState, value: string) {
     setWeeklyForm((prev) => ({
@@ -646,75 +639,79 @@ ${input}
 
 ${weeklySpec.outputRules.map((rule, index) => `${index + 1}. ${rule}`).join("\n")}
 
----
-
-## 黑话浓度
-
-${flavorLevel}`;
+`;
     }
 
     if (selectedAgent.id === "okr") {
-      result = `# OKR 建议
+      result = `# OKR 生成结果
+
+## 原始目标
+${input}
 
 ## Objective
-围绕当前重点方向，跑通核心业务闭环，提升项目推进效率和结果质量。
+提升「${input}」相关工作的推进质量与结果确定性，让目标更清晰、过程更可控、产出更可验证。
 
 ## Key Results
-1. KR1：明确核心目标、关键抓手和阶段性里程碑。
-2. KR2：完成关键任务拆解，确保每个任务都有 owner、deadline 和验收标准。
-3. KR3：推动相关方完成对齐，减少协同过程中的信息差。
-4. KR4：沉淀一套可复用的方法论，为后续项目反哺经验。
+1. KR1：在本周期内明确核心目标、关键对象和验收口径，形成一版可执行方案。
+2. KR2：拆解不少于 3 个关键任务，每个任务明确 owner、deadline 和交付物。
+3. KR3：完成至少 1 轮相关方对齐，减少信息差，确认推进节奏和协同方式。
+4. KR4：沉淀可复用的过程文档或模板，为后续类似事项复用提供参考。
+5. KR5：收集不少于 3 条真实反馈，并基于反馈完成至少 1 次优化迭代。
 
-## 质量评分
-- 挑战性：4 / 5
-- 可衡量性：3 / 5
-- 对齐度：4 / 5
+## 风险点
+1. 目标可能仍然偏大，需要继续拆成更小的阶段性任务。
+2. KR 中如果没有数字、时间或验收标准，后续很难判断是否完成。
+3. 如果相关方没有提前对齐，执行中容易出现返工和信息差。
 
 ## 优化建议
-当前 OKR 的方向是成立的，但 KR 的数据指标还不够明确。建议补充具体数字，比如完成时间、覆盖人数、成功率、满意度等。
+1. 把「想提升」改成「提升到什么程度」，例如完成率、耗时、满意度、反馈数量。
+2. 把「我要做」改成「谁在什么时间交付什么结果」。
+3. 每个 KR 尽量带一个可衡量指标，比如数量、比例、时间、质量标准。
 
-## 黑话浓度
-${flavorLevel}
-
-## 原始输入
-${input}`;
+## 打工人版解释
+这套 OKR 的意思是：先把目标说清楚，再拆成能验收的任务，过程中持续对齐，最后用数据和反馈证明事情真的做成了。`;
     }
 
     if (selectedAgent.id === "review") {
-      result = `# 项目复盘
+      result = `# 项目复盘生成结果
+
+## 原始描述
+${input}
 
 ## S - Situation 背景
-本次事项发生在项目推进过程中，涉及目标拆解、协同对齐和执行落地等环节。
+围绕「${input}」这个事项，项目从一个相对模糊的想法开始，需要在有限时间内完成目标拆解、方案验证和结果交付。
 
 ## T - Task 目标
-核心目标是把当前事项从想法推进到可交付结果，形成完整闭环。
+本次任务的核心目标是跑通最小可用闭环：明确要解决的问题，完成关键功能或关键交付，并让结果可以被他人真实体验或验证。
 
 ## A - Action 行动
-1. 对关键问题进行了梳理和拆解。
-2. 推动相关方进行沟通和对齐。
-3. 在执行过程中不断调整打法，保证项目持续推进。
+1. 先聚焦最核心的使用场景，避免一开始就做大而全的平台。
+2. 将任务拆成若干小步骤，逐步完成页面、逻辑、内容和部署。
+3. 遇到阻塞时及时定位问题，例如环境配置、页面样式、线上部署和用户访问。
+4. 在功能可用后进行体验优化，让用户更容易理解和使用。
+5. 最后完成上线，让项目从本地 Demo 变成可分享的线上 MVP。
 
 ## R - Result 结果
-当前已经形成阶段性结果，但具体数据和最终效果还需要进一步补充。
+当前事项已经形成阶段性成果：核心流程可以被演示，用户可以打开页面体验，项目也具备继续收集反馈和迭代优化的基础。
 
-## 做得好的地方
-1. 能主动推进问题，不等不靠。
-2. 有意识地拉通协同方，减少信息差。
-3. 开始关注经验沉淀，而不是只完成单点任务。
+## 亮点
+1. 没有一开始追求完整平台，而是先选择最容易验证价值的场景切入。
+2. 能持续根据使用反馈调整页面结构和交互体验。
+3. 完成了从本地开发到线上部署的完整闭环。
+4. 项目已经具备可演示、可试用、可迭代的 MVP 形态。
 
-## 待改进的地方
-1. 前期目标颗粒度还可以更细。
-2. 风险预判可以更早一些。
-3. 后续需要把结果指标补齐，避免复盘停留在感受层面。
+## 问题与不足
+1. 当前生成内容仍以模板为主，智能化程度有限。
+2. 部分功能还需要更明确的输入引导，降低新用户理解成本。
+3. 如果后续用户增多，还需要考虑数据保存、权限和稳定性问题。
+
+## 下次优化
+1. 优先收集真实用户反馈，不要凭感觉继续堆功能。
+2. 对高频场景继续做深，例如周报、OKR、复盘三个核心 Agent。
+3. 后续再考虑接入 AI，让系统从“模板生成”升级为“自动理解和生成”。
 
 ## 方法论沉淀
-先跑通最小闭环，再基于反馈持续迭代。今天最好的表现，是明天最低的要求。
-
-## 黑话浓度
-${flavorLevel}
-
-## 原始输入
-${input}`;
+先跑通最小闭环，再基于真实反馈迭代。MVP 的重点不是功能多，而是能证明一个具体问题真的被解决了。`;
     }
 
     if (selectedAgent.id === "translate") {
@@ -762,10 +759,7 @@ ${mainWords}
 ${wordList}
 
 ## 打工人翻译
-这句话的意思是：大家先把事情说清楚，统一理解，再确定怎么做、谁来做、什么时候交付。
-
-## 黑话浓度
-${flavorLevel}`;
+这句话的意思是：大家先把事情说清楚，统一理解，再确定怎么做、谁来做、什么时候交付。`;
     }
 
     setOutput(cleanGeneratedText(result));
@@ -803,7 +797,7 @@ ${flavorLevel}`;
 
     await exportWeeklyDocx({
       rawInput: finalInput,
-      flavorLevel,
+      flavorLevel: "中",
     });
 
     setInput(finalInput);
@@ -821,14 +815,13 @@ ${flavorLevel}`;
             阿里味智能工作助手
           </h1>
 
-          <p className="mt-4 max-w-2xl text-slate-300">
-            帮你生成周报、OKR、项目复盘和阿里味表达。第一版先跑通最小闭环：
-            填写信息，体检校验，下载 Word 周报。
+          <p className="mt-4 max-w-5xl text-slate-300">
+            阿里味工作助手：周报、OKR、项目复盘和黑话翻译一站式生成。当前主打周报 Agent：填写信息 → 体检校验 → 下载 Word 周报。
           </p>
         </header>
 
         <div className="grid gap-6 xl:grid-cols-[260px_1fr_340px]">
-          <aside className="rounded-2xl border border-slate-800 bg-slate-900 p-4">
+          <aside className="self-start rounded-2xl border border-slate-800 bg-slate-900 p-4">
             <h2 className="mb-4 text-lg font-semibold">选择 Agent</h2>
 
             <div className="space-y-3">
@@ -1184,29 +1177,7 @@ AITIC 线下实训营 banner 图 3 张`}
               className="h-52 w-full rounded-xl border border-slate-700 bg-slate-950 p-4 text-sm text-white outline-none focus:border-orange-400"
             />
 
-            <div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <label className="mb-2 block text-sm text-slate-300">
-                  黑话浓度
-                </label>
-
-                <div className="flex gap-2">
-                  {["低", "中", "高"].map((level) => (
-                    <button
-                      key={level}
-                      onClick={() => setFlavorLevel(level)}
-                      className={`rounded-full px-4 py-2 text-sm ${
-                        flavorLevel === level
-                          ? "bg-orange-500 text-white"
-                          : "bg-slate-800 text-slate-300 hover:bg-slate-700"
-                      }`}
-                    >
-                      {level}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
+            <div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-end">
               <div className="flex flex-col gap-3 sm:flex-row">
                 {selectedAgent.id === "weekly" && (
                   <button
